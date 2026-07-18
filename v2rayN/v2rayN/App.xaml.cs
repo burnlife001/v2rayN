@@ -1,3 +1,4 @@
+using ServiceLib.Services;
 using v2rayN.Manager;
 using v2rayN.Views;
 
@@ -9,6 +10,7 @@ namespace v2rayN;
 public partial class App
 {
     public static EventWaitHandle ProgramStarted;
+    private CliPipeService? _cliPipeService;
 
     public App()
     {
@@ -49,6 +51,9 @@ public partial class App
             .WithWpf()
             .BuildApp();
 
+        _cliPipeService = CliPipeServiceFactory.Create(Utils.GetExePath());
+        _cliPipeService.Start();
+
         base.OnStartup(e);
 
         var mainWindowViewModel = new MainWindowViewModel();
@@ -82,6 +87,7 @@ public partial class App
     protected override void OnExit(ExitEventArgs e)
     {
         Logging.SaveLog("OnExit");
+        _cliPipeService?.StopAsync().GetAwaiter().GetResult();
         base.OnExit(e);
         Process.GetCurrentProcess().Kill();
     }

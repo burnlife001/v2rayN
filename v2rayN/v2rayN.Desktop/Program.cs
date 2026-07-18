@@ -1,3 +1,4 @@
+using ServiceLib.Services;
 using v2rayN.Desktop.Common;
 using v2rayN.Desktop.Manager;
 
@@ -6,6 +7,7 @@ namespace v2rayN.Desktop;
 internal class Program
 {
     public static EventWaitHandle ProgramStarted;
+    private static CliPipeService? _cliPipeService;
 
     // Initialization code. Don't use any Avalonia, third-party APIs or any
     // SynchronizationContext-reliant code before AppMain is called: things aren't initialized
@@ -19,8 +21,18 @@ internal class Program
             return;
         }
 
-        BuildAvaloniaApp()
-            .StartWithClassicDesktopLifetime(args);
+        _cliPipeService = CliPipeServiceFactory.Create(Utils.GetExePath());
+        _cliPipeService.Start();
+
+        try
+        {
+            BuildAvaloniaApp()
+                .StartWithClassicDesktopLifetime(args);
+        }
+        finally
+        {
+            _cliPipeService.StopAsync().GetAwaiter().GetResult();
+        }
     }
 
     private static bool OnStartup(string[]? Args)

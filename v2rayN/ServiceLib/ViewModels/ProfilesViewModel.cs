@@ -96,6 +96,7 @@ public class ProfilesViewModel : MyReactiveObject
     public ProfilesViewModel()
     {
         _config = AppManager.Instance.Config;
+        CliCommandBridge.Instance.ProfilesViewModel = this;
 
         #region WhenAnyValue && ReactiveCommand
 
@@ -616,6 +617,9 @@ public class ProfilesViewModel : MyReactiveObject
             Reload();
         }
     }
+
+    // Public wrapper for cross-process invocation (e.g. CLI hub).
+    public Task SetDefaultServerAsync(string? indexId) => SetDefaultServer(indexId);
 
     public async Task ShareServerAsync()
     {

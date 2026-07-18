@@ -78,6 +78,30 @@ jobs:
       working-directory: ./v2rayN
       run: dotnet publish $Project -c Release -r $RID -p:SelfContained=true $ExtOpt -o $Output
 
+    - name: Build v2rayN.Cli
+      shell: bash
+      working-directory: ./v2rayN
+      run: dotnet publish ./v2rayN.Cli/v2rayN.Cli.csproj -c Release -r $RID -p:SelfContained=false $ExtOpt -o $Output/.cli-staging
+
+    - name: Copy v2rayn-cli into main release directory
+      shell: bash
+      run: |
+        set -e
+        staging="$Output/.cli-staging"
+        out="$Output"
+        # Copy the CLI executable + auxiliary files next to v2rayN.exe so
+        # ProcessLauncher.GetV2RayNExePath() can find the host process.
+        for f in v2rayn-cli.exe v2rayn-cli v2rayn-cli.dll v2rayn-cli.runtimeconfig.json v2rayn-cli.deps.json; do
+          if [ -f "$staging/$f" ]; then
+            cp -f "$staging/$f" "$out/"
+          fi
+        done
+        # Ensure executable bit on unix-likes
+        chmod +x "$out/v2rayn-cli" 2>/dev/null || true
+        rm -rf "$staging"
+        echo "v2rayn-cli copied to $out:"
+        ls -la "$out/v2rayn-cli"*
+
     - name: Build AmazTool
       shell: bash
       working-directory: ./v2rayN

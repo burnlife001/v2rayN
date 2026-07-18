@@ -88,7 +88,8 @@ public partial class StatusBarView
     private async void menuExit_Click(object sender, RoutedEventArgs e)
     {
         tbNotify.Dispose();
-        await AppManager.Instance.AppExitAsync(true);
+        await AppManager.Instance.AppExitAsync(false);
+        Process.GetCurrentProcess().Kill();
     }
 
     private void txtRunningInfoDisplay_MouseDoubleClick(object sender, MouseButtonEventArgs e)

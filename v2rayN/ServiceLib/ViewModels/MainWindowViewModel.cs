@@ -93,6 +93,7 @@ public class MainWindowViewModel : MyReactiveObject
         _config = AppManager.Instance.Config;
         BlIsWindows = Utils.IsWindows();
         MainGirdOrientation = _config.UiItem.MainGirdOrientation;
+        CliCommandBridge.Instance.MainWindowViewModel = this;
 
         #region WhenAnyValue && ReactiveCommand
 

@@ -36,6 +36,7 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\ServiceLib\ServiceLib.csproj" />
+		<ProjectReference Include="..\v2rayN.Cli\v2rayN.Cli.csproj" />
 	</ItemGroup>
 
 </Project>
