@@ -35,6 +35,15 @@ build() {
     local status="${ps_out%%|*}"
     v2rayn_path="${ps_out#*|}"
 
+    # NuGet 走系统代理 127.0.0.1:10808 (v2rayN 提供)，必须在停掉 v2rayN 之前完成还原。
+    echo -e "\e[32m>>> Restoring NuGet packages (proxy still up)...\e[0m"
+    if ! dotnet restore "$SLN" --nologo -v q; then
+        local rc=$?
+        echo -e "\e[31m<<< Restore FAILED (exit: $rc). v2rayN left running; aborting build.\e[0m"
+        return 1
+    fi
+    echo -e "\e[32m<<< Restore OK\e[0m"
+
     if [ "$status" = "RUNNING" ]; then
         echo -e "\e[33m>>> v2rayN is running, stopping it before build...\e[0m"
         [ -n "$v2rayn_path" ] && echo "    $v2rayn_path" && was_running=1
@@ -46,9 +55,9 @@ build() {
         echo -e "\e[33m>>> v2rayN is not running\e[0m"
     fi
 
-    echo -e "\e[32m>>> Building Avalonia...\e[0m"
+    echo -e "\e[32m>>> Building Avalonia (offline, --no-restore)...\e[0m"
     local build_ok=0
-    if dotnet build "$SLN" -c Release --nologo -v q -p:NuGetAudit=false; then
+    if dotnet build "$SLN" -c Release --nologo -v q --no-restore -p:NuGetAudit=false; then
         echo -e "\e[32m<<< Build OK\e[0m"
         build_ok=1
     else
